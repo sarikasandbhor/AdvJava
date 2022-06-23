@@ -1,0 +1,4 @@
+File propertiesFile = new File('C:/Users/Sarika/Downloads/flowable-trial/flowable/properties/testdata.properties.txt');
+def config = new ConfigSlurper().parse(propertiesFile.toURL());
+println("Config"+config);
+String filePath = config.path;

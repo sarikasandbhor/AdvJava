@@ -1,0 +1,42 @@
+import com.flowable.content.engine.ContentEngines;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
+import org.apache.commons.io.IOUtils;
+
+File propertiesFile = new File('C:/Users/Sarika/Downloads/flowable-trial/flowable/properties/testdata.properties.txt');
+def config = new ConfigSlurper().parse(propertiesFile.toURL());
+println("Config"+config);
+String filePath = config.path;
+
+println(System.getProperty("user.dir"));
+println(System.getProperty("java.io.tmpdir"));
+println("File Name :"+((java.util.ArrayList)execution.getVariable("file1")).get(0).getName());
+
+//println(System.getProperties());
+String fileName = ((java.util.ArrayList)execution.getVariable("file1")).get(0).getName();
+
+File file = new File(filePath);
+InputStream is = ContentEngines.getDefaultContentEngine().getContentService().getContentItemData(((java.util.ArrayList)execution.getVariable("file1")).get(0).getId());
+
+HttpHeaders headers = new HttpHeaders();
+headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+MultiValueMap<String, Object> body = new LinkedMultiValueMap<String, Object>();
+body.add("file", new FileSystemResource(file));
+
+String uploadUrl = "http://localhost:8088/api/upload/file";
+System.out.println("Body: " + body);
+
+RestTemplate restTemplate = new RestTemplate();
+HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+
+System.out.println("Response Entity :"+requestEntity);
+
+ResponseEntity<String> response = restTemplate.postForEntity(uploadUrl, requestEntity, String.class);
+System.out.println("Response code: " + response.getStatusCode());
